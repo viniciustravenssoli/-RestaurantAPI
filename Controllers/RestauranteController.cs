@@ -15,6 +15,32 @@ namespace RestauranteApi.Controllers
             _context = context;
         }
 
+        [HttpGet("{id}/pedidos-melhor-avaliados")]
+        public async Task<ActionResult<IEnumerable<Pedido>>> GetPedidosMelhorAvaliados(int id, int? top = null)
+        {
+            var pedidosDoRestaurante = await _context.Pedidos
+                .Where(p => p.RestauranteId == id) 
+                .Include(p => p.Itens)             
+                .Include(p => p.Avaliacao)       
+                .OrderByDescending(p => p.Avaliacao != null ? p.Avaliacao.Nota : 0) 
+                .ThenBy(p => p.Avaliacao != null ? p.Avaliacao.Comentario : "")    
+                .ToListAsync();
+
+            if (!pedidosDoRestaurante.Any())
+                return NotFound("Nenhum pedido encontrado para este restaurante.");
+
+            var pedidosAvaliados = pedidosDoRestaurante
+                .Where(p => p.Avaliacao != null)
+                .ToList();
+
+            if (top.HasValue && top.Value > 0)
+            {
+                pedidosAvaliados = pedidosAvaliados.Take(top.Value).ToList();
+            }
+
+            return Ok(pedidosAvaliados);
+        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Restaurante>>> GetRestaurantes()
         {

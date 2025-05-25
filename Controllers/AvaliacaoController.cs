@@ -34,6 +34,15 @@ namespace RestauranteApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Avaliacao>> PostAvaliacao(Avaliacao avaliacao)
         {
+            var pedido = await _context.Pedidos.FirstOrDefaultAsync(p => p.Id == avaliacao.PedidoId);
+
+            if (pedido == null)
+            {
+                return NotFound("Pedido não encontrado, não é possivel avaliar ele");
+            }
+
+            pedido.Avaliacao = avaliacao;
+
             _context.Avaliacoes.Add(avaliacao);
             await _context.SaveChangesAsync();
 

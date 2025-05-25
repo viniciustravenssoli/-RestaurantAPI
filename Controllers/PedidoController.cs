@@ -14,7 +14,7 @@ namespace RestauranteApi.Controllers
         {
             _context = context;
         }
-
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pedido>>> GetPedidos()
         {
@@ -41,6 +41,15 @@ namespace RestauranteApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Pedido>> PostPedido(Pedido pedido)
         {
+            var restaurante = await _context.Restaurantes.FirstOrDefaultAsync(p => p.Id == pedido.RestauranteId);
+
+            if (restaurante is null)
+            {
+                return NotFound($"Restaurante com o {pedido.RestauranteId} não encontrado");
+            }
+            
+            restaurante.Pedidos.Add(pedido);
+
             pedido.CalcularValorTotal();
             _context.Pedidos.Add(pedido);
             await _context.SaveChangesAsync();

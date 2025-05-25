@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace RestauranteApi.Models
@@ -9,6 +10,7 @@ namespace RestauranteApi.Models
     {
         public int Id { get; set; }
         public int PedidoId { get; set; }
+        [JsonIgnore]
         public Pedido? Pedido { get; set; }
 
         public int Nota { get; set; } // 1 a 5
